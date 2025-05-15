@@ -19,6 +19,12 @@ y = df['Churn']
 # 2. Train/Test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+
+
+# Save test sets
+X_test.to_csv("/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/X_test.csv", index=False)
+y_test.to_csv("/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/y_test.csv", index=False)
+
 #check for object(non- numeric column)
 print(X_train.dtypes[X_train.dtypes == 'object'])
 
@@ -29,6 +35,12 @@ X_test = pd.get_dummies(X_test)
 # Align test set columns with train
 X_test = X_test.reindex(columns=X_train.columns, fill_value=0)
 
+# Save the training columns (feature names) so you can align test data later
+pd.Series(X_train.columns).to_csv(
+    '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/X_train_columns.csv',
+    index=False,
+    header=False
+)
 
 # 3. Scaling (Optional but good for models like Logistic Regression)
 scaler = StandardScaler()
@@ -45,6 +57,8 @@ log_reg.fit(X_train_scaled, y_train)
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)  # RF doesn't need scaling
 
+
+
 # 5. Evaluation
 print("=== Logistic Regression ===")
 y_pred_lr = log_reg.predict(X_test_scaled)
@@ -60,4 +74,3 @@ print("ROC-AUC:", roc_auc_score(y_test, rf.predict_proba(X_test)[:, 1]))
 joblib.dump(rf, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/random_forest_model.pkl')
 joblib.dump(log_reg, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/logistic_model.pkl')
 joblib.dump(scaler, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/scaler.pkl')
-
