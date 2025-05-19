@@ -4,6 +4,7 @@
 import pandas as pd
 #load the dataset
 #read the dataset
+
 df = pd.read_csv('/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv')
 #generate first five rows
 df.head()

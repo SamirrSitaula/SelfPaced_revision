@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h2>Customer Churn Prediction</h2>
+    <form action="/predict" method="post">
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label>Senior Citizen (0 = No, 1 = Yes)</label>
+                <input type="number" name="SeniorCitizen" class="form-control" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label>Tenure</label>
+                <input type="number" step="any" name="tenure" class="form-control" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label>Monthly Charges</label>
+                <input type="number" step="any" name="MonthlyCharges" class="form-control" required>
+            </div>
+            <div class="form-group col-md-3">
+                <label>Total Charges</label>
+                <input type="number" step="any" name="TotalCharges" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Categorical fields -->
+        {% set fields = {
+            'gender': ['gender_Male', 'gender_Female'],
+            'Partner': ['Partner_Yes', 'Partner_No'],
+            'Dependents': ['Dependents_Yes', 'Dependents_No'],
+            'PhoneService': ['PhoneService_Yes', 'PhoneService_No'],
+            'MultipleLines': ['MultipleLines_Yes', 'MultipleLines_No', 'MultipleLines_No phone service'],
+            'InternetService': ['InternetService_DSL', 'InternetService_Fiber optic', 'InternetService_No'],
+            'OnlineSecurity': ['OnlineSecurity_Yes', 'OnlineSecurity_No', 'OnlineSecurity_No internet service'],
+            'OnlineBackup': ['OnlineBackup_Yes', 'OnlineBackup_No', 'OnlineBackup_No internet service'],
+            'DeviceProtection': ['DeviceProtection_Yes', 'DeviceProtection_No', 'DeviceProtection_No internet service'],
+            'TechSupport': ['TechSupport_Yes', 'TechSupport_No', 'TechSupport_No internet service'],
+            'StreamingTV': ['StreamingTV_Yes', 'StreamingTV_No', 'StreamingTV_No internet service'],
+            'StreamingMovies': ['StreamingMovies_Yes', 'StreamingMovies_No', 'StreamingMovies_No internet service'],
+            'Contract': ['Contract_Month-to-month', 'Contract_One year', 'Contract_Two year'],
+            'PaperlessBilling': ['PaperlessBilling_Yes', 'PaperlessBilling_No'],
+            'PaymentMethod': ['PaymentMethod_Electronic check', 'PaymentMethod_Mailed check', 'PaymentMethod_Bank transfer (automatic)', 'PaymentMethod_Credit card (automatic)']
+        } %}
+
+        {% for name, options in fields.items() %}
+        <div class="form-group">
+            <label for="{{ name }}">{{ name }}</label>
+            <select name="{{ name }}" class="form-control" required>
+                {% for opt in options %}
+                    <option value="{{ opt }}">{{ opt.replace('_', ' ') }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary">Predict</button>
+    </form>
+
+    {% if prediction %}
+    <div class="alert alert-info mt-4">
+        <h4>Prediction: Customer Churn = <strong>{{ prediction }}</strong></h4>
+        <p>Probability of churn: {{ probability }}%</p>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>

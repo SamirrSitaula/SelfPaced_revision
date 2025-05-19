@@ -74,6 +74,15 @@ df['churn_contract'] = df['churn_contract'].astype(int)
 
 
 
+def create_clv_target(df, monetary_column='TotalCharges', time_column='tenure'):
+    """
+    Creates a simple CLV target variable using:
+    CLV = Average Monthly Spend * Tenure
+    """
+    df['CLV'] = df[monetary_column] / df[time_column].replace(0, 1) * df[time_column]
+    return df
+df = create_clv_target(df)
+
 # #final Data Cleanup
 # df.drop(columns=['StreamingTV', 'StreamingMovies', 'OnlineSecurity', 'DeviceProtection'], inplace=True)
 

@@ -16,6 +16,13 @@ df = pd.read_csv('/Users/samirsitaula/Documents/Selfpaced_Practice/projects/cust
 X = df.drop('Churn', axis=1)
 y = df['Churn']
 
+
+
+
+
+
+
+
 # 2. Train/Test split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -42,6 +49,9 @@ pd.Series(X_train.columns).to_csv(
     header=False
 )
 
+
+
+
 # 3. Scaling (Optional but good for models like Logistic Regression)
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -56,6 +66,7 @@ log_reg.fit(X_train_scaled, y_train)
 # Random Forest
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
 rf.fit(X_train, y_train)  # RF doesn't need scaling
+
 
 
 
@@ -74,3 +85,18 @@ print("ROC-AUC:", roc_auc_score(y_test, rf.predict_proba(X_test)[:, 1]))
 joblib.dump(rf, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/random_forest_model.pkl')
 joblib.dump(log_reg, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/logistic_model.pkl')
 joblib.dump(scaler, '/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/models/scaler.pkl')
+
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+def train_clv_model(X_train, y_train, model_type='random_forest'):
+    if model_type == 'random_forest':
+        model = RandomForestRegressor(n_estimators=100, random_state=42)
+    elif model_type == 'linear':
+        model = LinearRegression()
+    else:
+        raise ValueError("Unsupported model type")
+    
+    model.fit(X_train, y_train)
+    return model

@@ -1,43 +1,13 @@
-# import pandas as pd
-# from sklearn.metrics import classification_report, roc_auc_score, confusion_matrix
-# import matplotlib.pyplot as plt
-# import seaborn as sns
 
-# def evaluate_model(model, X, y, model_name="model"):
-#     y_pred = model.predict(X)
-#     y_prob = model.predict_proba(X)[:, 1]
-
-#     print(f"=== Evaluation Report for {model_name} ===")
-#     print(classification_report(y, y_pred))
-#     print(f"ROC-AUC: {roc_auc_score(y, y_prob):.4f}")
-
-#     # Plot confusion matrix
-#     cm = confusion_matrix(y, y_pred)
-#     plt.figure(figsize=(6,4))
-#     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-#     plt.title(f"{model_name} Confusion Matrix")
-#     plt.xlabel("Predicted")
-#     plt.ylabel("Actual")
-#     plt.show()
-
-# def preprocess_for_rf(df, train_columns):
-#     # Convert categorical columns to dummies
-#     df_dummies = pd.get_dummies(df)
-#     # Align test set columns with train columns (fill missing with 0)
-#     df_dummies = df_dummies.reindex(columns=train_columns, fill_value=0)
-#     return df_dummies
-
-# def preprocess_for_logreg(df, train_columns, scaler):
-#     df_dummies = pd.get_dummies(df)
-#     df_dummies = df_dummies.reindex(columns=train_columns, fill_value=0)
-#     X_scaled = scaler.transform(df_dummies)
-#     return X_scaled
 import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix, roc_auc_score
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+
 
 def ensure_dir(path):
     if not os.path.exists(path):
@@ -54,6 +24,9 @@ def preprocess_for_rf(X_raw, train_columns):
     X = X.reindex(columns=train_columns, fill_value=0)
     return X
 
+
+
+
 def preprocess_for_logreg(X_raw, train_columns, scaler):
     """
     Preprocess test data for Logistic Regression:
@@ -65,6 +38,9 @@ def preprocess_for_logreg(X_raw, train_columns, scaler):
     X = X.reindex(columns=train_columns, fill_value=0)
     X_scaled = scaler.transform(X)
     return X_scaled
+
+
+
 
 def evaluate_model(model, X_test, y_test, model_name="model"):
     """
@@ -115,7 +91,7 @@ def evaluate_model(model, X_test, y_test, model_name="model"):
     plt.close()
     print(f"Saved confusion matrix plot to {cm_path}")
 
-    # Plot ROC curve (if possible)
+    # Plot ROC curve 
     if y_prob is not None:
         from sklearn.metrics import roc_curve, auc
         fpr, tpr, _ = roc_curve(y_test, y_prob)
@@ -133,3 +109,42 @@ def evaluate_model(model, X_test, y_test, model_name="model"):
         plt.savefig(roc_path)
         plt.close()
         print(f"Saved ROC curve plot to {roc_path}")
+
+#clv_model
+
+
+def evaluate_clv_model(model, X_test, y_test):
+    y_pred = model.predict(X_test)
+
+    mae = mean_absolute_error(y_test, y_pred)
+    rmse = mean_squared_error(y_test, y_pred, squared=False)
+    r2 = r2_score(y_test, y_pred)
+
+    print(f"MAE: {mae:.2f}")
+    print(f"RMSE: {rmse:.2f}")
+    print(f"R²: {r2:.2f}")
+
+    # Save figure
+    figures_dir = "/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/figures"
+    reports_dir = "/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/outputs/reports"
+    os.makedirs(figures_dir, exist_ok=True)
+    os.makedirs(reports_dir, exist_ok=True)
+
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(x=y_test, y=y_pred, alpha=0.5)
+    plt.xlabel("Actual CLV")
+    plt.ylabel("Predicted CLV")
+    plt.title("Actual vs Predicted CLV")
+    plt.savefig(f"{figures_dir}/clv_actual_vs_predicted.png")
+    plt.close()
+
+
+    # Save evaluation report as CSV
+    metrics_df = pd.DataFrame({
+        'Metric': ['MAE', 'RMSE', 'R2'],
+        'Value': [mae, rmse, r2]
+    })
+    csv_path = f"{reports_dir}/clv_regression_report.csv"
+    metrics_df.to_csv(csv_path, index=False)
+    print(f"Saved CLV regression report to {csv_path}")
+

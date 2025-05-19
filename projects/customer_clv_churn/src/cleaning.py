@@ -29,3 +29,5 @@ df.head()
 
 #save the cleaned file
 df.to_csv('/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/cleaned_data.csv', index=False)
+df.to_csv("/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/final_dataset_with_clv.csv", index=False)
+
