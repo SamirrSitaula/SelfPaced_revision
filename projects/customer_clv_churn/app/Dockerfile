@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copy your Flask app and models into the container
 COPY . /app/
+COPY data /app/data
 
 COPY outputs /outputs
 
