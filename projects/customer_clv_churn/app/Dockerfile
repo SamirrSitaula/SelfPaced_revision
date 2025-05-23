@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copy your Flask app and models into the container
-COPY app/ /app/
+COPY . /app/
 
 COPY outputs /outputs
 
