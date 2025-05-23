@@ -1,5 +1,4 @@
-# src/generate_data.py
-
+# src/data_creation.py
 import pandas as pd
 import numpy as np
 import random
@@ -18,15 +17,20 @@ def generate_synthetic_hr_data(n=1000):
         "YearsAtCompany": np.random.randint(0, 40, size=n),
     })
 
-    # Add target with some patterns
-    data["Attrition"] = data.apply(
-        lambda row: "Yes" if (row["JobSatisfaction"] <= 2 and row["YearsAtCompany"] < 3) else "No", axis=1
-    )
-
     # Introduce some missing values
     for col in ["MonthlyIncome", "JobSatisfaction"]:
         data.loc[data.sample(frac=0.05).index, col] = np.nan
 
+    # Generate Attrition (target) with some logic
+    def generate_attrition(row):
+        if row["JobSatisfaction"] == 1 and row["YearsAtCompany"] < 2:
+            return "Yes"
+        elif row["MonthlyIncome"] < 4000 and row["DistanceFromHome"] > 20:
+            return "Yes"
+        else:
+            return np.random.choice(["Yes", "No"], p=[0.1, 0.9])
+
+    data["Attrition"] = data.apply(generate_attrition, axis=1)
     return data
 
 if __name__ == "__main__":

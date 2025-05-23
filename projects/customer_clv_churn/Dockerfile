@@ -7,6 +7,8 @@ WORKDIR /app
 # Copy your Flask app and models into the container
 COPY app/ /app/
 
+COPY outputs /outputs
+
 COPY requirements.txt requirements.txt
 
 # Install dependencies

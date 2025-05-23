@@ -2,12 +2,36 @@ from flask import Flask, render_template, request
 import numpy as np
 import pandas as pd
 import joblib
+import os
+import pickle
+
 
 app = Flask(__name__)
 
 # Load trained model and scaler
-model = joblib.load('../outputs/models/logistic_model.pkl')
-scaler = joblib.load('../outputs/models/scaler.pkl')
+model = joblib.load('outputs/models/logistic_model.pkl')
+scaler = joblib.load('outputs/models/scaler.pkl')
+with open("outputs/models/features.pkl", "rb") as f:
+    features = pickle.load(f)
+
+    import pickle
+
+# Load trained columns
+# trained_columns = pd.read_csv("data/processed/X_train_columns.csv", header=None)[0].tolist()
+#trained_columns = pd.read_csv("/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/X_train_columns.csv", header=None)[0].tolist()
+# Get root of the project
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+COLUMNS_PATH = os.path.join(BASE_DIR, "data", "processed", "X_train_columns.csv")
+
+trained_columns = pd.read_csv(COLUMNS_PATH, header=None)[0].tolist()
+
+
+
+# One-hot encode user input
+# (Moved to inside the predict() function after input_df is created)
+
+# Align columns
+# (Moved to inside the predict() function after input_df is created)
 
 # Your full list of 45 feature names (same order as training)
 feature_columns = [
@@ -35,48 +59,48 @@ def index():
     return render_template('index.html')
 
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
-    # 1. Get form data
-    form_data = request.form
+    try:
+        form_data = request.form
 
-    # 2. Initialize input vector with 0s
-    input_data = dict.fromkeys(feature_columns, 0)
+        # 1. Numeric features
+        numeric_features = ['SeniorCitizen', 'tenure', 'MonthlyCharges', 'TotalCharges']
+        numeric_data = {f: float(form_data[f]) if f != 'SeniorCitizen' else int(form_data[f]) for f in numeric_features}
 
-    # 3. Fill numeric fields
-    input_data['SeniorCitizen'] = int(form_data['SeniorCitizen'])
-    input_data['tenure'] = float(form_data['tenure'])
-    input_data['MonthlyCharges'] = float(form_data['MonthlyCharges'])
-    input_data['TotalCharges'] = float(form_data['TotalCharges'])
+        # 2. Categorical features
+        categorical_fields = [
+            'gender', 'Partner', 'Dependents', 'PhoneService',
+            'MultipleLines', 'InternetService', 'OnlineSecurity',
+            'OnlineBackup', 'DeviceProtection', 'TechSupport',
+            'StreamingTV', 'StreamingMovies', 'Contract',
+            'PaperlessBilling', 'PaymentMethod'
+        ]
+        categorical_data = {field: form_data.get(field) for field in categorical_fields}
 
-    # 4. Handle categorical one-hot fields
-    categorical_fields = [
-        'gender', 'Partner', 'Dependents', 'PhoneService',
-        'MultipleLines', 'InternetService', 'OnlineSecurity',
-        'OnlineBackup', 'DeviceProtection', 'TechSupport',
-        'StreamingTV', 'StreamingMovies', 'Contract',
-        'PaperlessBilling', 'PaymentMethod'
-    ]
+        # 3. Create DataFrame
+        input_df = pd.DataFrame([{**numeric_data, **categorical_data}])
 
-    for field in categorical_fields:
-        selected_option = form_data.get(field)
-        if selected_option in input_data:
-            input_data[selected_option] = 1
+        # 4. One-hot encode categorical
+        input_df = pd.get_dummies(input_df)
 
-    # 5. Convert to DataFrame and order columns
-    input_df = pd.DataFrame([input_data])[feature_columns]
+        # 5. Align columns with features.pkl
+        input_df = input_df.reindex(columns=features, fill_value=0)
 
-    # 6. Scale numerical features only
-    numeric_features = ['SeniorCitizen', 'tenure', 'MonthlyCharges', 'TotalCharges']
-    input_df[numeric_features] = scaler.transform(input_df[numeric_features])
+        # 6. Scale entire feature set
+        input_scaled = scaler.transform(input_df)
+        input_df_scaled = pd.DataFrame(input_scaled, columns=features)
 
-    # 7. Predict
-    prediction = model.predict(input_df)[0]
-    prob = model.predict_proba(input_df)[0][1]  # Probability of churn
+        # 7. Predict
+        prediction = model.predict(input_df_scaled)[0]
+        prob = model.predict_proba(input_df_scaled)[0][1]
 
-    result = "Yes" if prediction == 1 else "No"
-    return render_template('index.html', prediction=result, probability=round(prob * 100, 2))
-
+        result = "Yes" if prediction == 1 else "No"
+        return render_template('index.html', prediction=result, probability=round(prob * 100, 2))
+    
+    except Exception as e:
+        return f"Something went wrong: {e}", 500
 
 if __name__ == '__main__':
     app.run(debug=True)

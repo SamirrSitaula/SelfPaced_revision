@@ -83,8 +83,7 @@ def create_clv_target(df, monetary_column='TotalCharges', time_column='tenure'):
     return df
 df = create_clv_target(df)
 
-# #final Data Cleanup
-# df.drop(columns=['StreamingTV', 'StreamingMovies', 'OnlineSecurity', 'DeviceProtection'], inplace=True)
+
 
 
 
