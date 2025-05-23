@@ -173,11 +173,20 @@
     </div>
   </div>
 </div>
+{% if not prediction %}
 <script>
   $(document).ready(function () {
     $('#infoModal').modal('show');
   });
 </script>
+{% else %}
+<script>
+  $(document).ready(function () {
+    $('#predictionModal').modal('show');
+  });
+</script>
+{% endif %}
+
 
 </body>
 </html>
