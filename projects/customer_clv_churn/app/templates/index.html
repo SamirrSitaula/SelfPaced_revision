@@ -1,14 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Churn Prediction</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #ff0084, #89074d);
+            color: #a40c8f;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            background-color: #ccbfc6;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+        label {
+            color: #9a1e9a;
+        }
+        .btn-tmobile {
+            background-color: #e20074;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+        .btn-tmobile:hover {
+            background-color: #c10065;
+        }
+    </style>
 </head>
 <body>
+    
 <div class="container mt-5">
-    <h2>Customer Churn Prediction</h2>
+    <h2 class="text-center mb-4">📱 T-Mobile Customer Churn Prediction</h2>
     <form action="/predict" method="post">
         <div class="form-row">
             <div class="form-group col-md-3">
@@ -29,7 +58,6 @@
             </div>
         </div>
 
-        <!-- Categorical fields -->
         {% set fields = {
             'gender': ['gender_Male', 'gender_Female'],
             'Partner': ['Partner_Yes', 'Partner_No'],
@@ -59,15 +87,97 @@
         </div>
         {% endfor %}
 
-        <button type="submit" class="btn btn-primary">Predict</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-tmobile">🔮 Predict</button>
+        </div>
     </form>
-
-    {% if prediction %}
-    <div class="alert alert-info mt-4">
-        <h4>Prediction: Customer Churn = <strong>{{ prediction }}</strong></h4>
-        <p>Probability of churn: {{ probability }}%</p>
-    </div>
-    {% endif %}
 </div>
+
+<!-- Prediction Modal -->
+<div class="modal fade" id="predictionModal" tabindex="-1" role="dialog" aria-labelledby="predictionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content" style="border-radius: 20px;">
+      <div class="modal-header" style="background-color: #e20074; color: rgb(255, 255, 255); border-top-left-radius: 20px; border-top-right-radius: 20px;">
+        <h5 class="modal-title" id="predictionModalLabel">📊 Prediction Result</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: rgb(176, 17, 120);">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Churning Chance: <h4><strong>{{ prediction }}</strong></h4></p>
+        <p>💡 Churn Probability: <strong>{{ probability }}%</strong></p>
+        <p>💰 Estimated CLV: <strong>${{ clv }}</strong></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-tmobile" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS Scripts -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+  {% if prediction %}
+<script>
+    $(document).ready(function() {
+      $('#predictionModal').modal('show');
+    });
+ </script>
+  {% endif %}
+
+<!-- Bootstrap JS (required for modal) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+{% if prediction %}
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    $('#predictionModal').modal('show');
+  });
+</script>
+{% endif %}
+<!-- Project Info Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title" id="infoModalLabel">📊 T-Mobile CLV & Churn Prediction Project</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Welcome to the <strong>Customer Lifetime Value (CLV) & Churn Prediction</strong> tool developed for T-Mobile using machine learning.
+        </p>
+        <ul>
+          <li>📈 Predicts customer churn probability.</li>
+          <li>💰 Estimates lifetime value of a customer.</li>
+          <li>🧠 Uses trained ML models on historical customer data.</li>
+        </ul>
+        <p>
+          📂 <strong>Documentation:</strong> This web app is part of a data science project with end-to-end pipeline (EDA, feature engineering, modeling, deployment).
+        </p>
+        <p>
+          🔗 <strong>Presentation Deck:</strong>
+          <a href="https://prezi.com/view/YqamULJqmPDGJPI01iXY/" target="_blank" class="btn btn-outline-info btn-sm ml-2">View Slides</a>
+        </p>
+        <p>Click on Get Started To Make Predictions.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-info" data-dismiss="modal">Get Started</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+    $('#infoModal').modal('show');
+  });
+</script>
+
 </body>
 </html>
