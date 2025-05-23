@@ -21,9 +21,11 @@ with open("outputs/models/features.pkl", "rb") as f:
 #trained_columns = pd.read_csv("/Users/samirsitaula/Documents/Selfpaced_Practice/projects/customer_clv_churn/data/processed/X_train_columns.csv", header=None)[0].tolist()
 # Get root of the project
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-COLUMNS_PATH = os.path.join(BASE_DIR, "data", "processed", "X_train_columns.csv")
-
+COLUMNS_PATH = os.path.join("data", "processed", "X_train_columns.csv")
 trained_columns = pd.read_csv(COLUMNS_PATH, header=None)[0].tolist()
+
+
+
 
 
 
